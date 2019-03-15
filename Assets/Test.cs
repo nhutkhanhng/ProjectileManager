@@ -62,7 +62,6 @@ public class Test : MonoBehaviour
     }
     private void Update()
     {
-        
         //Debug.LogError(particles.system.isPlaying);
         if (Input.GetKeyDown(KeyCode.K))
             IsPause = false;

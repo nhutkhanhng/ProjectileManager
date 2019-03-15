@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Curves
   m_EditorClassIdentifier: 
   curves:
-  - {fileID: 11400000, guid: db9021c6b4b89c94b8d5e524d47ca165, type: 2}
   - {fileID: 11400000, guid: 21fb64ab400a85f4d9053b869150c8a2, type: 2}
+  - {fileID: 11400000, guid: db9021c6b4b89c94b8d5e524d47ca165, type: 2}

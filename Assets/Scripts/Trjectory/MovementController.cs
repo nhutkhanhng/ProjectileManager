@@ -27,6 +27,37 @@ public class CurveTrajectory : Trajectory
     public CurveTrajectory(Vector3 origin, Vector3 target, float TimeToFinish = 1) : base(origin, target, TimeToFinish) { }
 }
 
+public class RunARoundTrajectory : Trajectory
+{
+    public Transform objectToOrbit; //Object To Orbit
+    Vector3 orbitAxis = Vector3.up; //Which vector to use for Orbit
+    float orbitRadius = 75.0f; //Orbit Radius
+    float orbitRadiusCorrectionSpeed = 0.5f; //How quickly the object moves to new position
+    float orbitRoationSpeed = 10.0f; //Speed Of Rotation arround object
+    float orbitAlignToDirectionSpeed = 0.5f; //Realign speed to direction of travel
+
+    private Vector3 orbitDesiredPosition;
+    private Vector3 previousPosition;
+    private Vector3 relativePos;
+    private Quaternion rotation;
+    private Transform thisTransform;
+
+    //---------------------------------------------------------------------------------------------------------------------
+
+    public override void Update(float DeltaTime)
+    {
+        //Movement
+        thisTransform.RotateAround(objectToOrbit.position, orbitAxis, orbitRoationSpeed * DeltaTime);
+        orbitDesiredPosition = (thisTransform.position - objectToOrbit.position).normalized * orbitRadius + objectToOrbit.position;
+        thisTransform.position = Vector3.Slerp(thisTransform.position, orbitDesiredPosition, Time.deltaTime * orbitRadiusCorrectionSpeed);
+
+        //Rotation
+        relativePos = thisTransform.position - previousPosition;
+        rotation = Quaternion.LookRotation(relativePos);
+        thisTransform.rotation = Quaternion.Slerp(thisTransform.rotation, rotation, orbitAlignToDirectionSpeed * Time.deltaTime);
+        previousPosition = thisTransform.position;
+    }
+}
 public class LinearTrajectory : Trajectory
 {
     public override Vector3 Calculate(float CurrentTime, float TimeToFinish)
@@ -36,7 +67,6 @@ public class LinearTrajectory : Trajectory
     public LinearTrajectory() : base() { }
     public LinearTrajectory(Vector3 origin, Vector3 target, float TimeToFinish = 1) : base(origin, target, TimeToFinish) { }
 }
-
 
 [Serializable]
 public class FollowTrajectory : TrajectoryDecorade
@@ -48,22 +78,42 @@ public class FollowTrajectory : TrajectoryDecorade
         this.trajectory.Target = BeFollowed.transform.position;
         this.trajectory.TimeToFinish = Vector3.Distance(this.trajectory.Origin, this.trajectory.Target) / this.MovementSpeed;
     }
+
+    private void LookAt(float deltaTime)
+    {
+        Quaternion _lookRotation = Quaternion.LookRotation((this.trajectory.Target - this.Owner.transform.position).normalized);
+        //over time
+        this.Owner.transform.rotation =
+            Quaternion.Slerp(this.Owner.transform.rotation, _lookRotation, deltaTime * TimeToFinish);
+        //instant
+    }
     public override void Update(float deltaTime = 0)
     {
+        if (IsComplete())
+        {
+            return;
+        }
+
         UpdateInfoTrajetory();
+        LookAt(deltaTime);
         base.Update(deltaTime);
     }
 
     public override bool IsComplete()
     {
-        return Vector3.Distance(this.BeAdded.transform.position, this.Target) <= Mathf.Epsilon;
+        return Vector3.Distance(this.Owner.transform.position, this.Target) <= Mathf.Epsilon;
+    }
+
+    public FollowTrajectory(ITrajectoryPath trajectory) : base (trajectory)
+    {
+        
     }
 
     public FollowTrajectory(ITrajectoryPath trajectory,GameObject BeAdded, GameObject Target) : base (trajectory,BeAdded, Target)
     {
         this.MovementSpeed = 18.2f;
 
-        this.BeAdded = BeAdded;
+        this.Owner = BeAdded;
         this.BeFollowed = Target;
     }
 
@@ -71,18 +121,73 @@ public class FollowTrajectory : TrajectoryDecorade
     {
         this.MovementSpeed = 18.2f;
 
-        this.BeAdded = BeAdded;
+        this.Owner = BeAdded;
         this.BeFollowed = Target;
     }
+
+    public override string ToString()
+    {
+        return this.GetType() + "." + this.trajectory.GetType();
+    }
 }
+
+[Serializable]
+public class LookAtTarget : TrajectoryDecorade
+{
+    public GameObject BeFollowed;
+    public float RotationSpeed = 2f;
+    private void LookAt(float deltaTime)
+    {
+        Quaternion _lookRotation = Quaternion.LookRotation((this.trajectory.Target - this.Owner.transform.position).normalized);
+        //over time
+        this.Owner.transform.rotation =
+            Quaternion.Slerp(this.Owner.transform.rotation, _lookRotation, deltaTime * TimeToFinish);
+        //instant
+    }
+    public override void Update(float deltaTime = 0)
+    {
+        if (IsComplete())
+        {
+            return;
+        }
+
+        LookAt(deltaTime);
+        base.Update(deltaTime);
+    }
+
+    public LookAtTarget(ITrajectoryPath trajectory, GameObject BeAdded, GameObject Target) : base(trajectory, BeAdded, Target)
+    {
+        this.RotationSpeed = 2f;
+        this.Owner = BeAdded;
+        this.BeFollowed = Target;
+    }
+
+    public LookAtTarget(ITrajectoryPath trajectory, Vector3 origin, GameObject BeAdded, GameObject Target) : base(trajectory, BeAdded, Target)
+    {
+        this.RotationSpeed = 2f;
+
+        this.Owner = BeAdded;
+        this.BeFollowed = Target;
+    }
+
+    public override string ToString()
+    {
+        return this.GetType() + "." + this.trajectory.ToString();
+    }
+}
+
 public class MovementController : MonoBehaviour
 {
     public ITrajectoryPath trajectory;
     public GameObject Target;
     private void Start()
     {
-        this.trajectory = new FollowTrajectory(new CurveTrajectory("DownAndUp"), this.gameObject, Target);
+        //this.trajectory = new FollowTrajectory(new LinearTrajectory(), this.gameObject, Target);
+        //this.trajectory = TrajectoryManager.Instance.Create("FollowTrajectory.LinearTrajectory", this.gameObject, this.gameObject.transform.position, this.Target.transform.position, this.Target);
+        this.trajectory = new LookAtTarget(new FollowTrajectory(new LinearTrajectory()), this.gameObject, this.Target);
         this.trajectory.CallbackWhenCompleted = () => Debug.LogError("JASKDJAKSLDJKLSAD");
+
+        Debug.LogError(this.trajectory.ToString());
     }
 
     private void Update()

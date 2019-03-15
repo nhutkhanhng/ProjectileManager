@@ -19,6 +19,13 @@ public interface ITrajectoryPath
 
     Vector3 CurrentPosition { get; }
     void Update(float Deltatime);
+
+    void SetUp(Vector3 Origin, Vector3 Target, float Duration);
+}
+
+public interface IProjectilePath : ITrajectoryPath
+{
+    GameObject Owner { get; }
 }
 
 public enum ETrajectoryType
@@ -90,6 +97,13 @@ public class Trajectory : ITrajectoryPath
         this._CurrentTime += Deltatime;
     }
 
+    public void SetUp(Vector3 Origin, Vector3 Target, float Duration)
+    {
+        this.Origin = Origin;
+        this.Target = Target;
+        this.TimeToFinish = Duration;
+    }
+
     public Trajectory() { }
 
     public Trajectory(Vector3 origin, Vector3 target, float TimeToFinish = 1f )
@@ -104,10 +118,10 @@ public class Trajectory : ITrajectoryPath
 public class TrajectoryDecorade : ITrajectoryPath
 {
     public ITrajectoryPath trajectory;
-    public GameObject BeAdded;
+    public GameObject Owner { get; set; }
 
     protected float _CurrentTime { get; set; } = 0;
-    public Vector3 Origin { get => this.trajectory.Origin; set => this.Origin = value; }
+    public Vector3 Origin { get { return this.trajectory.Origin; } set { this.trajectory.Origin = value; } }
     public Vector3 Target { get => this.trajectory.Target; set => this.trajectory.Target = value; }
     public List<Vector3> ImpactPoints => this.trajectory.ImpactPoints;
     public bool IsImpactPoint => this.trajectory.IsImpactPoint;
@@ -142,7 +156,7 @@ public class TrajectoryDecorade : ITrajectoryPath
 
         this._CurrentTime += deltaTime;
         this.trajectory.Update(deltaTime);
-        BeAdded.transform.position = this.trajectory.Calculate(this.CurrentTime, this.TimeToFinish);
+        Owner.transform.position = this.trajectory.Calculate(this.CurrentTime, this.TimeToFinish);
     }
 
     public virtual Vector3 Calculate(float CurrentTime, float TimeToFinish)
@@ -155,24 +169,29 @@ public class TrajectoryDecorade : ITrajectoryPath
         return this.trajectory.IsComplete();
     }
 
+    public void SetUp(Vector3 Origin, Vector3 Target, float Duration)
+    {
+        this.trajectory.SetUp(Origin, Target, Duration);
+    }
+
     public TrajectoryDecorade(ITrajectoryPath Ease, GameObject BeAdded, Vector3 target, float TimeToFinish = 1)
     {
+        // Cẩn thận. Chổ này dùng Đệ qui khi Add nhiều Decorade.
+        // Coi chừng dùng sai Modify có thể Loop
         this.trajectory = Ease;
-        this.BeAdded = BeAdded;
-        this.trajectory.Origin = BeAdded.gameObject.transform.position;
-        this.trajectory.Target = target;
+        this.trajectory.SetUp(BeAdded.gameObject.transform.position, Target, TimeToFinish);
 
-        this.trajectory.TimeToFinish = TimeToFinish;
+        this.Owner = BeAdded;
     }
 
     public TrajectoryDecorade(ITrajectoryPath Ease, GameObject BeAdded, GameObject Target)
     {
         this.trajectory = Ease;
-        this.BeAdded = BeAdded;
+        this.TimeToFinish = 10f;
+        this.trajectory.SetUp(BeAdded.transform.position, Target.transform.position, TimeToFinish);
+        this.Owner = BeAdded;
         this.trajectory.Origin = BeAdded.transform.position;
         this.trajectory.Target = Target.transform.position;
-
-        this.TimeToFinish = 10f;
     }
 
     public TrajectoryDecorade(ITrajectoryPath Ease, Vector3 origin, Vector3 target, GameObject BeAdded)
@@ -180,6 +199,20 @@ public class TrajectoryDecorade : ITrajectoryPath
         this.trajectory = Ease;
         this.trajectory.Origin = origin;
         this.trajectory.Target = target;
-        this.BeAdded = BeAdded;
+        this.Owner = BeAdded;
+    }
+
+    public TrajectoryDecorade(ITrajectoryPath Ease)
+    {
+        this.trajectory = Ease;
+    }
+
+    //public TrajectoryDecorade(IProjectilePath projectile)
+    //{
+
+    //}
+    public TrajectoryDecorade()
+    {
+
     }
 } 
