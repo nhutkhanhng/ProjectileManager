@@ -97,20 +97,51 @@ public class TrajectoryManager : MonoSingleton<TrajectoryManager>
 
     public SortedList<string, Queue<IProjectilePath>> TrajectoryFactory = new SortedList<string, Queue<IProjectilePath>>();
 
+    private IProjectilePath FindInPool(string name)
+    {
+        if (this.TrajectoryFactory != null && this.TrajectoryFactory.Count > 0)
+        {
+            if (this.TrajectoryFactory.ContainsKey(tempName))
+            {
+                if (this.TrajectoryFactory[tempName].Count > 0)
+                    return this.TrajectoryFactory[tempName].Dequeue();
+            }
+        }
+
+        return null;
+    }
     public IProjectilePath Create(string name, GameObject Owner,Vector3 OriginPosition, Vector3 TargetPosition, GameObject Target = null)
     {
         IProjectilePath pathBeCreated = null;
         try
         {
-            string[] splitName = name.Split('.');
+
+            string[] splitName = name.Split(',');
+
+            string newName = string.Empty;
+            foreach(var split in splitName)
+            {
+                newName += split + ((split).Equals(splitName[splitName.Length - 1]) ? string.Empty : "." );
+            }
+
+            newName.Remove(newName.Length - 2);
+            var findPath = FindInPool(newName);
+
+            if (findPath != null)
+            {
+                findPath.SetUp(Owner, Target, 5f);
+                findPath.SetUp(OriginPosition, TargetPosition, 5f);
+                return findPath;
+            }
+
             if (splitName.Length == 1)
             {
-                pathBeCreated = Activator.CreateInstance(Type.GetType(name), new object[] { OriginPosition, TargetPosition, 1f }) as IProjectilePath;
+                pathBeCreated = Activator.CreateInstance(Type.GetType(name.Trim().ToString()), new object[] { OriginPosition, TargetPosition, 1f }) as IProjectilePath;
                 //var instance = System.Reflection.Assembly.GetExecutingAssembly().CreateInstance(Type.GetType(name), new object[] { OriginPosition });
             }
             else if (splitName.Length == 2)
             {
-                pathBeCreated = Activator.CreateInstance(Type.GetType(splitName[0]), new object[] { Activator.CreateInstance(Type.GetType(splitName[1])) as ITrajectoryPath, OriginPosition, Owner, Target }) as IProjectilePath;
+                pathBeCreated = Activator.CreateInstance(Type.GetType(splitName[0].Trim().ToString()), new object[] { Activator.CreateInstance(Type.GetType(splitName[1])) as ITrajectoryPath, OriginPosition, Owner, Target }) as IProjectilePath;
                 Debug.LogError(pathBeCreated);
             }
         }
@@ -120,21 +151,49 @@ public class TrajectoryManager : MonoSingleton<TrajectoryManager>
             return null;
         }
         //if ()
-        if (pathBeCreated != null)
-        {
-            if (this.TrajectoryFactory.ContainsKey(pathBeCreated.ToString()) == false)
-            {
-                this.TrajectoryFactory.Add(pathBeCreated.ToString(), new Queue<IProjectilePath>());
-                this.TrajectoryFactory[pathBeCreated.ToString()].Enqueue(pathBeCreated);
-            }
-            else
-            {
-                this.TrajectoryFactory[pathBeCreated.ToString()].Enqueue(pathBeCreated);
-            }
-        }
+        //if (pathBeCreated != null)
+        //{
+        //    if (this.TrajectoryFactory.ContainsKey(pathBeCreated.ToString()) == false)
+        //    {
+        //        this.TrajectoryFactory.Add(pathBeCreated.ToString(), new Queue<IProjectilePath>());
+        //        this.TrajectoryFactory[pathBeCreated.ToString()].Enqueue(pathBeCreated);
+        //    }
+        //    else
+        //    {
+        //        this.TrajectoryFactory[pathBeCreated.ToString()].Enqueue(pathBeCreated);
+        //    }
+        //}
 
         this.newTrajectoryPathCreated = pathBeCreated;
+
         return pathBeCreated;
+    }
+    private string tempName;
+    public void Return(string name, IProjectilePath path)
+    {
+        if (this.TrajectoryFactory.Keys.Contains(name) == false)
+        {
+            this.TrajectoryFactory.Add(name, new Queue<IProjectilePath>());
+        }
+        tempName = name;
+        this.TrajectoryFactory[name].Enqueue(path);
+    }
+    [ContextMenu("Debug")]
+    public void Debugfactory()
+    {
+        int count = 0;
+        string namePath = string.Empty;
+        foreach (var trajec in this.TrajectoryFactory)
+        {
+            namePath = trajec.Key;
+            count = 0;
+            foreach (var newTracject in trajec.Value)
+            {
+                count++;
+            }
+
+            Debug.LogError(namePath + " " + count);
+        }
     }
     //public static Type GetGenericElementType(this Type type)
     //{

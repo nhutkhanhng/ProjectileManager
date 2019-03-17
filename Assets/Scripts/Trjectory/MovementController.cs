@@ -5,13 +5,14 @@ using System;
 
 
 
+#region CurveTrajectory
 public class CurveTrajectory : Trajectory
 {
     [SerializeField]
     public CurveTrajectoryInfo curve;
     public override Vector3 Calculate(float elapsedTime, float Duration)
     {
-        return this.Origin + Vector3.forward * curve.Curves.Evaluate(elapsedTime/Duration);
+        return this.OriginPosition + Vector3.forward * curve.Curves.Evaluate(elapsedTime/Duration);
     }
 
     public CurveTrajectory(string CurveName)
@@ -58,138 +59,29 @@ public class RunARoundTrajectory : Trajectory
         previousPosition = thisTransform.position;
     }
 }
-public class LinearTrajectory : Trajectory
-{
-    public override Vector3 Calculate(float CurrentTime, float TimeToFinish)
-    {
-        return Interpolate.Ease(Interpolate.Ease(Interpolate.EaseType.Linear), this.Origin, this.Target - this.Origin, CurrentTime, TimeToFinish);
-    }
-    public LinearTrajectory() : base() { }
-    public LinearTrajectory(Vector3 origin, Vector3 target, float TimeToFinish = 1) : base(origin, target, TimeToFinish) { }
-}
 
-[Serializable]
-public class FollowTrajectory : TrajectoryDecorade
-{
-    public GameObject BeFollowed;
-    public float MovementSpeed = 18.2f;
-    private void UpdateInfoTrajetory()
-    {
-        this.trajectory.Target = BeFollowed.transform.position;
-        this.trajectory.TimeToFinish = Vector3.Distance(this.trajectory.Origin, this.trajectory.Target) / this.MovementSpeed;
-    }
 
-    private void LookAt(float deltaTime)
-    {
-        Quaternion _lookRotation = Quaternion.LookRotation((this.trajectory.Target - this.Owner.transform.position).normalized);
-        //over time
-        this.Owner.transform.rotation =
-            Quaternion.Slerp(this.Owner.transform.rotation, _lookRotation, deltaTime * TimeToFinish);
-        //instant
-    }
-    public override void Update(float deltaTime = 0)
-    {
-        if (IsComplete())
-        {
-            return;
-        }
-
-        UpdateInfoTrajetory();
-        LookAt(deltaTime);
-        base.Update(deltaTime);
-    }
-
-    public override bool IsComplete()
-    {
-        return Vector3.Distance(this.Owner.transform.position, this.Target) <= Mathf.Epsilon;
-    }
-
-    public FollowTrajectory(ITrajectoryPath trajectory) : base (trajectory)
-    {
-        
-    }
-
-    public FollowTrajectory(ITrajectoryPath trajectory,GameObject BeAdded, GameObject Target) : base (trajectory,BeAdded, Target)
-    {
-        this.MovementSpeed = 18.2f;
-
-        this.Owner = BeAdded;
-        this.BeFollowed = Target;
-    }
-
-    public FollowTrajectory(ITrajectoryPath trajectory, Vector3 origin, GameObject BeAdded, GameObject Target) : base(trajectory, BeAdded, Target)
-    {
-        this.MovementSpeed = 18.2f;
-
-        this.Owner = BeAdded;
-        this.BeFollowed = Target;
-    }
-
-    public override string ToString()
-    {
-        return this.GetType() + "." + this.trajectory.GetType();
-    }
-}
-
-[Serializable]
-public class LookAtTarget : TrajectoryDecorade
-{
-    public GameObject BeFollowed;
-    public float RotationSpeed = 2f;
-    private void LookAt(float deltaTime)
-    {
-        Quaternion _lookRotation = Quaternion.LookRotation((this.trajectory.Target - this.Owner.transform.position).normalized);
-        //over time
-        this.Owner.transform.rotation =
-            Quaternion.Slerp(this.Owner.transform.rotation, _lookRotation, deltaTime * TimeToFinish);
-        //instant
-    }
-    public override void Update(float deltaTime = 0)
-    {
-        if (IsComplete())
-        {
-            return;
-        }
-
-        LookAt(deltaTime);
-        base.Update(deltaTime);
-    }
-
-    public LookAtTarget(ITrajectoryPath trajectory, GameObject BeAdded, GameObject Target) : base(trajectory, BeAdded, Target)
-    {
-        this.RotationSpeed = 2f;
-        this.Owner = BeAdded;
-        this.BeFollowed = Target;
-    }
-
-    public LookAtTarget(ITrajectoryPath trajectory, Vector3 origin, GameObject BeAdded, GameObject Target) : base(trajectory, BeAdded, Target)
-    {
-        this.RotationSpeed = 2f;
-
-        this.Owner = BeAdded;
-        this.BeFollowed = Target;
-    }
-
-    public override string ToString()
-    {
-        return this.GetType() + "." + this.trajectory.ToString();
-    }
-}
+#endregion
 
 public class MovementController : MonoBehaviour
 {
     public ITrajectoryPath trajectory;
     public GameObject Target;
+    public GameObject LookAtTarget;
     private void Start()
     {
         //this.trajectory = new FollowTrajectory(new LinearTrajectory(), this.gameObject, Target);
-        //this.trajectory = TrajectoryManager.Instance.Create("FollowTrajectory.LinearTrajectory", this.gameObject, this.gameObject.transform.position, this.Target.transform.position, this.Target);
-        this.trajectory = new LookAtTarget(new FollowTrajectory(new LinearTrajectory()), this.gameObject, this.Target);
+        // this.trajectory = TrajectoryManager.Instance.Create("FollowTrajectory.LinearTrajectory", this.gameObject, this.gameObject.transform.position, this.Target.transform.position, this.Target);
+        //this.trajectory = new FollowTrajectory(new LinearTrajectory(), this.gameObject, this.Target);
+        this.trajectory = new LookAtTrajectory(new FollowTrajectory(new LinearTrajectory(), this.gameObject, this.Target), this.gameObject, this.LookAtTarget);
         this.trajectory.CallbackWhenCompleted = () => Debug.LogError("JASKDJAKSLDJKLSAD");
-
-        Debug.LogError(this.trajectory.ToString());
     }
 
+    [ContextMenu("Test")]
+    public void TestLookAt()
+    {
+        this.gameObject.transform.LookAt(this.LookAtTarget.transform);
+    }
     private void Update()
     {
         this.trajectory.Update(Time.deltaTime);
