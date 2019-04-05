@@ -2,8 +2,27 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
 
+public class ReactionList<T> : List<T>
+{
+    public event ListChangedEventDelegate ListChanged;
+    public delegate void ListChangedEventDelegate();
 
+    public ListChangedEventDelegate changed;
+    public new void Add(T item)
+    {
+        base.Add(item);
+
+        changed?.Invoke();
+
+        if (ListChanged != null
+            && ListChanged.GetInvocationList().Any())
+        {
+            ListChanged();
+        }
+    }
+}
 
 #region CurveTrajectory
 public class CurveTrajectory : Trajectory
@@ -68,6 +87,9 @@ public class MovementController : MonoBehaviour
     public ITrajectoryPath trajectory;
     public GameObject Target;
     public GameObject LookAtTarget;
+
+    public ReactionList<GameObject> list;
+
     private void Start()
     {
         //this.trajectory = new FollowTrajectory(new LinearTrajectory(), this.gameObject, Target);
@@ -75,6 +97,11 @@ public class MovementController : MonoBehaviour
         //this.trajectory = new FollowTrajectory(new LinearTrajectory(), this.gameObject, this.Target);
         this.trajectory = new LookAtTrajectory(new FollowTrajectory(new LinearTrajectory(), this.gameObject, this.Target), this.gameObject, this.LookAtTarget);
         this.trajectory.CallbackWhenCompleted = () => Debug.LogError("JASKDJAKSLDJKLSAD");
+
+        list = new ReactionList<GameObject>();
+        list.changed += () => Debug.LogError("ASDJKSADKLSA");
+
+        list.Add(this.gameObject);
     }
 
     [ContextMenu("Test")]

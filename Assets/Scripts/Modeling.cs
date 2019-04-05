@@ -75,6 +75,23 @@ public static class Modeling
         return null;
     }
 
+    public static GameObject LoadPrefab(UnityEngine.Object asset)
+    {
+        try
+        {
+            var ret = GameObject.Instantiate(asset) as GameObject;
+
+            if (ret == null)
+                Debug.LogError("Cannot load prefab " + ret);
+            return ret;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Cannot load prefab with error " + e.Message);
+        }
+        return null;
+    }
+
     public static GameObject LoadPrefab(GameObject prefab, string tag = "Default", Transform parent = null)
     {
         if (prefab == null) return null;
@@ -269,11 +286,11 @@ public static class Modeling
 
 
 
-namespace AC_Modeling
+namespace AsyncModeling
 {
-    using LoadModel = AC_Modeling.ACModeling;
+    using Async = AsyncModeling.AsyncLoader;
 
-    public static class ACModeling
+    public static class AsyncLoader
     {
         //class AsyncJob
         //{
@@ -349,7 +366,6 @@ namespace AC_Modeling
 
             System.Action<UnityEngine.Object, System.Action<UnityEngine.Object>> DoJob = (asset, extraData) =>
             {
-
                 var obj = GameObject.Instantiate(asset) as GameObject;
                 extraData?.Invoke(obj);
             };
@@ -379,13 +395,13 @@ namespace AC_Modeling
 
         public static void LoadAsyncObject(string path, Quaternion localRotation, string tag = GameTag.Player, Transform parent = null)
         {
-            LoadModel.LoadAsyncObject<GameObject>(path,
+            AsyncModeling.AsyncLoader.LoadAsyncObject<GameObject>(path,
                () => Modeling.LoadPrefab(path, tag, parent));
         }
 
         public static void LoadAsyncObject(string path, System.Action callback = null, string tag = "Default", Transform parent = null)
         {
-            LoadModel.LoadAsyncObject<GameObject>(path,
+            AsyncModeling.AsyncLoader.LoadAsyncObject<GameObject>(path,
              () =>
              {
                  Modeling.LoadPrefab(path, tag, parent);

@@ -1,0 +1,224 @@
+fileFormatVersion: 2
+guid: 41617adf739e3a74cbfae934d5128fa4
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: Avatar
+    100002: body001
+    100004: Bone001
+    100006: Bone002
+    100008: Bone003
+    100010: Bone004
+    100012: Bone005
+    100014: Bone006
+    100016: Bone007
+    100018: Bone008
+    100020: Bone009
+    100022: Bone010
+    100024: Camera
+    100026: camera
+    100028: dipan001
+    100030: Effect_Jizhong
+    100032: guang001
+    100034: head camera
+    100036: leg001
+    100038: leg002
+    100040: Monster003
+    100042: //RootNode
+    100044: Particle View 001
+    100046: pet
+    100048: playermode
+    100050: playername
+    100052: qg001
+    100054: qg002
+    100056: suipian001
+    100058: suipian002
+    100060: suipian003
+    100062: suipian004
+    100064: suipian005
+    100066: suipian007
+    100068: suipian008
+    100070: suipian009
+    100072: suipian010
+    100074: suipian011
+    100076: Monster010
+    400000: Avatar
+    400002: body001
+    400004: Bone001
+    400006: Bone002
+    400008: Bone003
+    400010: Bone004
+    400012: Bone005
+    400014: Bone006
+    400016: Bone007
+    400018: Bone008
+    400020: Bone009
+    400022: Bone010
+    400024: Camera
+    400026: camera
+    400028: dipan001
+    400030: Effect_Jizhong
+    400032: guang001
+    400034: head camera
+    400036: leg001
+    400038: leg002
+    400040: Monster003
+    400042: //RootNode
+    400044: Particle View 001
+    400046: pet
+    400048: playermode
+    400050: playername
+    400052: qg001
+    400054: qg002
+    400056: suipian001
+    400058: suipian002
+    400060: suipian003
+    400062: suipian004
+    400064: suipian005
+    400066: suipian007
+    400068: suipian008
+    400070: suipian009
+    400072: suipian010
+    400074: suipian011
+    400076: Monster010
+    2300000: body001
+    2300002: dipan001
+    2300004: guang001
+    2300006: Monster003
+    2300008: qg001
+    2300010: qg002
+    2300012: suipian001
+    2300014: suipian002
+    2300016: suipian003
+    2300018: suipian004
+    2300020: suipian005
+    2300022: suipian007
+    2300024: suipian008
+    2300026: suipian009
+    2300028: suipian010
+    2300030: suipian011
+    3300000: body001
+    3300002: dipan001
+    3300004: guang001
+    3300006: Monster003
+    3300008: qg001
+    3300010: qg002
+    3300012: suipian001
+    3300014: suipian002
+    3300016: suipian003
+    3300018: suipian004
+    3300020: suipian005
+    3300022: suipian007
+    3300024: suipian008
+    3300026: suipian009
+    3300028: suipian010
+    3300030: suipian011
+    4300000: leg002
+    4300002: leg001
+    4300004: qg002
+    4300006: qg001
+    4300008: dipan001
+    4300010: Monster003
+    4300012: guang001
+    4300014: body001
+    4300016: suipian001
+    4300018: suipian002
+    4300020: suipian003
+    4300022: suipian004
+    4300024: suipian005
+    4300026: suipian007
+    4300028: suipian008
+    4300030: suipian009
+    4300032: suipian010
+    4300034: suipian011
+    7400000: Take 001
+    9500000: //RootNode
+    11100000: //RootNode
+    13700000: leg001
+    13700002: leg002
+  externalObjects: {}
+  materials:
+    importMaterials: 0
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 0
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.05
+    animationPositionError: 0.05
+    animationScaleError: 0.05
+    animationWrapMode: 1
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 0.01
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importVisibility: 0
+    importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+    previousCalculatedGlobalScale: 1
+    hasPreviousCalculatedGlobalScale: 0
+  tangentSpace:
+    normalSmoothAngle: 180
+    normalImportMode: 1
+    tangentImportMode: 4
+    normalCalculationMode: 0
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 1
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 1
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
